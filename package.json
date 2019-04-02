@@ -1,8 +1,8 @@
 {
-	"name": "memoize-one-ts",
-	"version": "0.0.1",
+	"name": "@getflywheel/memoize-one-ts",
+	"version": "0.0.2",
 	"description": "A memoization library which only remembers the latest invocation. Built with TypeScript and includes decorators.",
-	"author": "crummm",
+	"author": "",
 	"scripts": {
 		"build": "tsc --project tsconfig.json",
 		"prerelease": "yarn test && yarn build",
@@ -11,7 +11,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/crummm/memoize-one-ts.git"
+		"url": "https://github.com/getflywheel/memoize-one-ts"
 	},
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
