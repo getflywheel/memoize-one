@@ -1,24 +1,20 @@
 # memoize-one
 
-A memoization library that only caches the result of the most recent arguments.
-
-[![Build Status](https://travis-ci.org/alexreardon/memoize-one.svg?branch=master)](https://travis-ci.org/alexreardon/memoize-one)
-[![npm](https://img.shields.io/npm/v/memoize-one.svg)](https://www.npmjs.com/package/memoize-one)
-[![dependencies](https://david-dm.org/alexreardon/memoize-one.svg)](https://david-dm.org/alexreardon/memoize-one)
-[![Downloads per month](https://img.shields.io/npm/dm/memoize-one.svg)](https://www.npmjs.com/package/memoize-one)
-[![min](https://img.shields.io/bundlephobia/min/memoize-one.svg)](https://www.npmjs.com/package/memoize-one)
-[![minzip](https://img.shields.io/bundlephobia/minzip/memoize-one.svg)](https://www.npmjs.com/package/memoize-one)
+A memoization library that only caches the result of the most recent arguments. 
+This a fork of Alex Reardon's fantastic [memoize-one](https://www.google.com) JavaScript library, but is written in TypeScript and utilizes decorators to better facilitate our [Local by Flywheel](https://localbyflywheel.com/) coding efforts.
 
 ## Rationale
 
-Unlike other memoization libraries, `memoize-one` only remembers the latest arguments and result. No need to worry about cache busting mechanisms such as `maxAge`, `maxSize`, `exclusions` and so on which can be prone to memory leaks. `memoize-one` simply remembers the last arguments, and if the function is next called with the same arguments then it returns the previous result.
+Unlike other memoization libraries, `memoize-one-ts` only remembers the latest arguments and result. 
+No need to worry about cache busting mechanisms such as `maxAge`, `maxSize`, `exclusions` and so on which can be prone to memory leaks. 
+`memoize-one-ts` simply remembers the last arguments, and if the function is next called with the same arguments then it returns the previous result.
 
 ## Usage
 
 ### Standard usage
 
-```js
-import memoizeOne from 'memoize-one';
+```typescript
+import memoizeOne from 'memoize-one-ts';
 
 const add = (a, b) => a + b;
 const memoizedAdd = memoizeOne(add);
@@ -44,49 +40,33 @@ memoizedAdd(1, 2); // 3
 
 ```bash
 # yarn
-yarn add memoize-one
+yarn add memoize-one-ts
 
 # npm
-npm install memoize-one --save
-```
-
-## Module usage
-
-### ES6 module
-
-```js
-import memoizeOne from 'memoize-one';
-```
-
-### CommonJS
-
-If you are in a CommonJS environment (eg [Node](https://nodejs.org)), then **you will need to add `.default` to your import**:
-
-```js
-const memoizeOne = require('memoize-one').default;
+npm install memoize-one-ts --save
 ```
 
 ## Custom equality function
 
 You can also pass in a custom function for checking the equality of two sets of arguments
 
-```js
+```typescript
 const memoized = memoizeOne(fn, isEqual);
-type EqualityFn = (newArgs: mixed[], oldArgs: mixed[]) => boolean;
+type EqualityFn = (newArgs: any[], oldArgs: any[]) => boolean;
 ```
 
 An equality function should return `true` if the arguments are equal. If `true` is returned then the wrapped function will not be called.
 
-The default equality function is a shallow equal check of all arguments (each argument is compared with `===`). If the `length` of arguments change, then the default equality function makes no shallow equality checks. You are welcome to decide if you want to return `false` if the `length` of the arguments is not equal
+The default equality function is a shallow equal check of all arguments (each argument is compared with `===`). The default equality function also does not check anything if the length of the arguments changes. You are welcome to decide if you want to return `false` if the `length` of the arguments is not equal
 
-```js
+```typescript
 const simpleIsEqual: EqualityFn = (
-  newArgs: mixed[],
-  lastArgs: mixed[],
+  newArgs: any[],
+  lastArgs: any[],
 ): boolean =>
   newArgs.length === lastArgs.length &&
   newArgs.every(
-    (newArg: mixed, index: number): boolean =>
+    (newArg: any, index: number): boolean =>
       shallowEqual(newArg, lastArgs[index]),
   );
 ```
@@ -99,8 +79,8 @@ Here is an example that uses a `lodash.isequal` deep equal equality check
 
 > `lodash.isequal` correctly handles deep comparing two arrays
 
-```js
-import memoizeOne from 'memoize-one';
+```typescript
+import memoizeOne from 'memoize-one-ts';
 import isDeepEqual from 'lodash.isequal';
 
 const identity = x => x;
@@ -121,9 +101,10 @@ result3 === result4; // true - arguments are deep equal
 
 ## `this`
 
-### `memoize-one` correctly respects `this` control
+### `memoize-one-ts` correctly respects `this` control
 
-This library takes special care to maintain, and allow control over the the `this` context for **both** the original function being memoized as well as the returned memoized function. Both the original function and the memoized function's `this` context respect [all the `this` controlling techniques](https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/ch2.md):
+This library takes special care to maintain, and allow control over the the `this` context for **both** the original function being memoized as well as the returned memoized function. 
+Both the original function and the memoized function's `this` context respect [all the `this` controlling techniques](https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/ch2.md):
 
 - new bindings (`new`)
 - explicit binding (`call`, `apply`, `bind`);
@@ -136,7 +117,7 @@ This library takes special care to maintain, and allow control over the the `thi
 
 Changes to the running context (`this`) of a function can result in the function returning a different value even though its arguments have stayed the same:
 
-```js
+```typescript
 function getA() {
   return this.a;
 }
@@ -152,17 +133,22 @@ getA.call(temp1); // 20
 getA.call(temp2); // 30
 ```
 
-Therefore, in order to prevent against unexpected results, `memoize-one` takes into account the current execution context (`this`) of the memoized function. If `this` is different to the previous invocation then it is considered a change in argument. [further discussion](https://github.com/alexreardon/memoize-one/issues/3).
+Therefore, in order to prevent against unexpected results, `memoize-one-ts` takes into account the current execution context (`this`) of the memoized function. 
+If `this` is different to the previous invocation then it is considered a change in argument. [further discussion](https://github.com/alexreardon/memoize-one/issues/3).
 
-Generally this will be of no impact if you are not explicity controlling the `this` context of functions you want to memoize with [explicit binding](https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/ch2.md#explicit-binding) or [implicit binding](https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/ch2.md#implicit-binding). `memoize-One` will detect when you are manipulating `this` and will then consider the `this` context as an argument. If `this` changes, it will re-execute the original function even if the arguments have not changed.
+Generally this will be of no impact if you are not explicity controlling the `this` context of functions you want to memoize with [explicit binding](https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/ch2.md#explicit-binding) or [implicit binding](https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/ch2.md#implicit-binding). 
+`memoize-one-ts` will detect when you are manipulating `this` and will then consider the `this` context as an argument. 
+If `this` changes, it will re-execute the original function even if the arguments have not changed.
 
 ## When your result function `throw`s
 
 > There is no caching when your result function throws
 
-If your result function `throw`s then the memoized function will also throw. The throw will not break the memoized functions existing argument cache. It means the memoized function will pretend like it was never called with arguments that made it `throw`.
+If your result function `throw`s then the memoized function will also throw. 
+The throw will not break the memoized functions existing argument cache. 
+It means the memoized function will pretend like it was never called with arguments that made it `throw`.
 
-```js
+```typescript
 const canThrow = (name: string) => {
   console.log('called');
   if (name === 'throw') {
@@ -204,29 +190,3 @@ const value3 = memoized('Alex');
 console.log(value1 === value3);
 // console.log => true
 ```
-
-## Performance :rocket:
-
-### Tiny
-
-`memoize-one` is super lightweight at [![min](https://img.shields.io/bundlephobia/min/memoize-one.svg?label=)](https://www.npmjs.com/package/memoize-one) minified and [![minzip](https://img.shields.io/bundlephobia/minzip/memoize-one.svg?label=)](https://www.npmjs.com/package/memoize-one) gzipped. (`1KB` = `1,024 Bytes`)
-
-### Extremely fast
-
-`memoize-one` performs better or on par with than other popular memoization libraries for the purpose of remembering the latest invocation.
-
-**Results**
-
-- [simple arguments](https://www.measurethat.net/Benchmarks/ShowResult/4452)
-- [complex arguments](https://www.measurethat.net/Benchmarks/ShowResult/4488)
-
-The comparisons are not exhaustive and are primarily to show that `memoize-one` accomplishes remembering the latest invocation really fast. The benchmarks do not take into account the differences in feature sets, library sizes, parse time, and so on.
-
-## Code health :thumbsup:
-
-- Tested with all built in [JavaScript types](https://github.com/getify/You-Dont-Know-JS/blob/master/types%20%26%20grammar/ch1.md).
-- 100% code coverage
-- [Continuous integration](https://travis-ci.org/alexreardon/memoize-one) to run tests and type checks.
-- [`Flow` types](http://flowtype.org) for safer internal execution and external consumption. Also allows for editor autocompletion.
-- Follows [Semantic versioning (2.0)](http://semver.org/) for safer consumption.
-- No dependencies
